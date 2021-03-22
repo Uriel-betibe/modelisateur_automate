@@ -31,7 +31,7 @@ class Automate:
 
     def set_Etat(self):
         for i in range(self.nombreEtat):
-            temp = str(input("veuillez saisir l'état : "))
+            temp = str(input("veuillez saisir l'état " + str(i)+" :"))
             self.etat.append(temp)
         print("saisie de états reussi :")
         print(self.etat)
@@ -47,15 +47,47 @@ class Automate:
 
     def set_Etat_init(self):
         for i in range(self.nombreEtatInit):
-            temp = str(input("veuillez saisir l'état de depart : "))
-            if temp not in self.etat:
-                print("erreur! Votre saisie n'appartient a l'ensmble Q")
-            else:
-                self.Einit.append(temp)
-        #todo ajouter une boucle dans cas d'une erreue de saisie utilisateur
+            conditionEI = False
+            while conditionEI is not True:
+                temp = str(input("veuillez saisir l'état de depart : "))
+                if temp not in self.etat:
+                    print("erreur! Votre saisie n'appartient a l'ensmble Q :")
+                    print(self.etat)
+                else:
+                    self.Einit.append(temp)
+                    conditionEI = True
+        print("saisie Réussie voici le/les q0 : ")
+        print(self.Einit)
+
 
     def set_Etat_fini(self):
-        pass
+        for i in range(self.nombreEtatFini):
+            conditionEF = False
+            while conditionEF is not True:
+                temp = str(input("veuillez saisir l'état final : "))
+                if temp not in self.etat:
+                    print("erreur! Votre saisie n'appartient a l'ensmble Q :")
+                    print(self.etat)
+                else:
+                    self.Efini.append(temp)
+                    conditionEF = True
+        print("saisie Réussie voici le/les F : ")
+        print(self.Efini)
+
 
     def set_Transiton(self):
-        pass
+        print("Veuiller definir les transisiton :")
+        for etat in self.etat:
+            for lettre in self.alphabet:
+                teta = (etat, lettre)
+                print(teta)
+                conditionT = False
+                while conditionT is not True:
+                    etatTransi = str(input("veuillez saisir q' si il existe, si non pressé entré : "))
+                    if (etatTransi in self.etat) or (etatTransi == ""):
+                        self.transition.update({teta: etatTransi})
+                        conditionT = True
+                    else:
+                        print("erreur! Votre saisie n'appartient a l'alphabet ou n'est pas null :")
+                        print(self.alphabet)
+
