@@ -38,10 +38,21 @@ class Automate:
 
 
     def set_Alphabet(self):
-        pass
+        for i in range(self.tailleAlphabet):
+            temp = str(input("veuillez saisir les symboles de l'alphabet : "))
+            self.alphabet.append(temp)
+        print("saisie de l'alphabet reussi :")
+        print(self.alphabet)
+
 
     def set_Etat_init(self):
-        pass
+        for i in range(self.nombreEtatInit):
+            temp = str(input("veuillez saisir l'état de depart : "))
+            if temp not in self.etat:
+                print("erreur! Votre saisie n'appartient a l'ensmble Q")
+            else:
+                self.Einit.append(temp)
+        #todo ajouter une boucle dans cas d'une erreue de saisie utilisateur
 
     def set_Etat_fini(self):
         pass
