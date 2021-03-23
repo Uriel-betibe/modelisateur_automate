@@ -15,5 +15,7 @@ def main():
     print(newAutomate.Efini)
     print("\n \n")
     print(newAutomate.transition)
+    # creation de fichier
+    newAutomate.automate_to_file("test.txt")
 
 main()

@@ -11,6 +11,21 @@ Le programme est capable :
 
 """
 
+
+def ecriture(fichier, instance):
+    for i in range(len(instance)):
+        fichier.write(instance[i])
+        if i < len(instance)-1:
+            fichier.write(";")
+    fichier.write("\n")
+
+
+def ecriture_transition(fichier, instance):
+    for key in instance:
+        x = str(key) + ":" + str(instance[key])
+        fichier.write(x+"\n")
+
+
 class Automate:
     """
     @:parameter nbEtat : difinit le nombre d'état de notre ensemble
@@ -90,4 +105,27 @@ class Automate:
                     else:
                         print("erreur! Votre saisie n'appartient a l'alphabet ou n'est pas null :")
                         print(self.alphabet)
+
+    def automate_to_file(self, nom_fichier):
+        fichier = open(nom_fichier, 'w')
+        # ecriture des etats :
+        ecriture(fichier,self.etat)
+        # ecriture de l'alphabet
+        ecriture(fichier,self.alphabet)
+        # ecriture etat initial/aux
+        ecriture(fichier,self.Einit)
+        # ecriture etat final
+        ecriture(fichier,self.Efini)
+        # ecriture transition teta
+        ecriture_transition(fichier,self.transition)
+        fichier.close()
+
+    def file_to_automate(self,nom_fichier):
+        fichier = open(nom_fichier, 'r')
+
+        fichier.close()
+        pass
+
+    def automate_img(self):
+        pass
 
