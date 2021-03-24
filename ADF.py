@@ -10,6 +10,9 @@ Le programme est capable :
     - de déterminiser l'automate en détaillant les étapes
 
 """
+from graphviz import Digraph
+import re
+
 
 
 def ecriture(fichier, instance):
@@ -24,6 +27,7 @@ def ecriture_transition(fichier, instance):
     for key in instance:
         x = str(key) + ":" + str(instance[key])
         fichier.write(x+"\n")
+
 
 
 class Automate:
@@ -122,10 +126,44 @@ class Automate:
 
     def file_to_automate(self,nom_fichier):
         fichier = open(nom_fichier, 'r')
+        liste = fichier.readlines()
+        for i in range(len(liste)):
+            liste[i] = re.sub('[\n]', '', liste[i])
+        #enregistrement des etats
+        lesEtats = liste[0].split(";")
+        self.etat = lesEtats
+        # enregistrement de l'alphabet
+        language = liste[1].split(";")
+        self.alphabet = language
+        # enregistrement etat initial
+        if len(liste[2]) > 1:
+            EtatInitial = liste[2].split(";")
+            self.Einit = EtatInitial
+        else:
+            self.Einit = [liste[2]]
+        # enregistrement etat final
+        if len(liste[3]) > 1:
+            EtatFinal = liste[3].split(";")
+            self.Efini = EtatFinal
+        else:
+            self.Efini = [liste[3]]
+        # enregistrement transition
+        for i in range(4, len(liste)):
+            transitionTeta = liste[i]
+            a = transitionTeta[2]
+            b = transitionTeta[7]
+            c = transitionTeta[11]
+            self.transition.update({(a, b): c})
 
         fichier.close()
-        pass
 
-    def automate_img(self):
-        pass
+    def automate_img(self,nom_model):
+        D = Digraph('automate', filename=nom_model)
+        for cle,valeur in self.transition.items():
+            D.edge(cle[0], valeur, cle[1])
+        D.view()
+        #todo ajouter un signe pour la représentation de l'état initial et l'etat final
 
+    def determiniser_automate(self):
+        pass
+    #todo developper la fonction de derterminisation de l'automate
