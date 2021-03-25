@@ -24,8 +24,8 @@ def ecriture(fichier, instance):
 
 
 def ecriture_transition(fichier, instance):
-    for key in instance:
-        x = str(key) + ":" + str(instance[key])
+    for transition in instance:
+        x = transition[0] + ";" + transition[1] + ";" + transition[2]
         fichier.write(x+"\n")
 
 
@@ -46,7 +46,7 @@ class Automate:
         self.alphabet = []
         self.Einit = []
         self.Efini = []
-        self.transition = {}
+        self.transition = []
 
     def set_Etat(self):
         for i in range(self.nombreEtat):
@@ -96,6 +96,23 @@ class Automate:
 
     def set_Transiton(self):
         print("Veuiller definir les transisiton :")
+        ajoutTransition = True
+        while ajoutTransition:
+            ajoutOK = False
+            while ajoutOK is not True:
+                etatDepart = str(input("saisissez l'état de depart de la transiion: "))
+                alphaTransition = str(input("saisissez le symbole de cette transition: "))
+                etatArrive = str(input("saisissez l'état d'arrivé de cette transision: "))
+                if (etatDepart in self.etat) and (alphaTransition in self.alphabet) and (etatArrive in self.etat):
+                    self.transition.append([etatDepart,alphaTransition,etatArrive])
+                    ajoutOK = True
+                else:
+                    print("mauvaise saisie assurez vous de respecté l'ensemble des etats et l'alphabet")
+            continuer = str(input("souhaitez ajouter une autre transition 'o' (oui) ou 'n' (non): "))
+            if continuer == "n":
+                ajoutTransition = False
+            
+        """ 
         for etat in self.etat:
             for lettre in self.alphabet:
                 teta = (etat, lettre)
@@ -109,6 +126,7 @@ class Automate:
                     else:
                         print("erreur! Votre saisie n'appartient a l'alphabet ou n'est pas null :")
                         print(self.alphabet)
+        """
 
     def automate_to_file(self, nom_fichier):
         fichier = open(nom_fichier, 'w')
@@ -149,21 +167,21 @@ class Automate:
             self.Efini = [liste[3]]
         # enregistrement transition
         for i in range(4, len(liste)):
-            transitionTeta = liste[i]
-            a = transitionTeta[2]
-            b = transitionTeta[7]
-            c = transitionTeta[11]
-            self.transition.update({(a, b): c})
-
+            transitionTeta = liste[i].split(";")
+            self.transition.append(transitionTeta)
         fichier.close()
 
     def automate_img(self,nom_model):
         D = Digraph('automate', filename=nom_model)
-        for cle,valeur in self.transition.items():
-            D.edge(cle[0], valeur, cle[1])
+        for transiton in self.transition:
+            D.edge(transiton[0], transiton[2], transiton[1])
         D.view()
         #todo ajouter un signe pour la représentation de l'état initial et l'etat final
 
+    # todo developper la fonction de derterminisation de l'automate
     def determiniser_automate(self):
+        deterministe = True
+        if len(self.Einit) > 1:
+            deterministe = False
         pass
-    #todo developper la fonction de derterminisation de l'automate
+    
