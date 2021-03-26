@@ -54,6 +54,18 @@ def main():
         print(newAutomate.Efini)
         print("\n")
         print(newAutomate.transition)
+        print("\n")
+        newAutomate.determiniser_automate()
+        print("\n-------------------------\n")
+        print(newAutomate.etat)
+        print(newAutomate.alphabet)
+        print(newAutomate.Einit)
+        print(newAutomate.Efini)
+        print("\n")
+       # newAutomate.supprimerDoublons()
+        print(newAutomate.transition)
+        print("\n")
+
 
     # creation de fichier
     conditionChoix2 = False
@@ -71,5 +83,6 @@ def main():
     # creation de l'image du
     nom_modele = str(input("veuillez saisir le nom du fichier .gv pour la représentation de l'automate: "))
     newAutomate.automate_img(nom_modele)
+
 
 main()

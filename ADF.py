@@ -14,7 +14,6 @@ from graphviz import Digraph
 import re
 
 
-
 def ecriture(fichier, instance):
     for i in range(len(instance)):
         fichier.write(instance[i])
@@ -28,6 +27,10 @@ def ecriture_transition(fichier, instance):
         x = transition[0] + ";" + transition[1] + ";" + transition[2]
         fichier.write(x+"\n")
 
+def supprimerDoublons(liste):
+    for element in liste:
+        if liste.count(element) >= 2:
+            liste.remove(element)
 
 
 class Automate:
@@ -55,14 +58,12 @@ class Automate:
         print("saisie de états reussi :")
         print(self.etat)
 
-
     def set_Alphabet(self):
         for i in range(self.tailleAlphabet):
             temp = str(input("veuillez saisir les symboles de l'alphabet : "))
             self.alphabet.append(temp)
         print("saisie de l'alphabet reussi :")
         print(self.alphabet)
-
 
     def set_Etat_init(self):
         for i in range(self.nombreEtatInit):
@@ -78,7 +79,6 @@ class Automate:
         print("saisie Réussie voici le/les q0 : ")
         print(self.Einit)
 
-
     def set_Etat_fini(self):
         for i in range(self.nombreEtatFini):
             conditionEF = False
@@ -92,7 +92,6 @@ class Automate:
                     conditionEF = True
         print("saisie Réussie voici le/les F : ")
         print(self.Efini)
-
 
     def set_Transiton(self):
         print("Veuiller definir les transisiton :")
@@ -171,17 +170,91 @@ class Automate:
             self.transition.append(transitionTeta)
         fichier.close()
 
-    def automate_img(self,nom_model):
+    def automate_img(self, nom_model):
         D = Digraph('automate', filename=nom_model)
         for transiton in self.transition:
+            if transiton[0] in self.Einit:
+                D.node(transiton[0], label=transiton[0], color="red")
+            elif transiton[0] in self.Efini:
+                D.node(transiton[0], label=transiton[0], shape="doublecircle")
+            else:
+                D.node(transiton[0], label=transiton[0])
+            if transiton[2] in self.Einit:
+                D.node(transiton[2], label=transiton[2], shape="doublecircle")
+
             D.edge(transiton[0], transiton[2], transiton[1])
         D.view()
-        #todo ajouter un signe pour la représentation de l'état initial et l'etat final
 
-    # todo developper la fonction de derterminisation de l'automate
+
     def determiniser_automate(self):
         deterministe = True
-        if len(self.Einit) > 1:
+        casAtraiter = []
+        casTraiter = []
+        copyTransison = self.transition.copy()
+
+        for transitionP in copyTransison:
+            copy = copyTransison
+            print("------ statut des transitions lors de la copy -------")
+            print(self.transition)
+            print("----------")
+            copy.remove(transitionP)
+            for transition in copy:
+                if transitionP[:2] == transition[:2]:
+                    if transitionP not in casAtraiter:
+                        casAtraiter.append(transitionP)
+                        casAtraiter.append(transition)
+
+        if (len(casAtraiter) > 0) or (len(self.Einit) > 1):
             deterministe = False
-        pass
-    
+
+        if deterministe is False:
+            # creer un nouvel état initial qui combine tous les etats initaux
+            if len(self.Einit) > 1:
+                newEtatInitial = ""
+                for i in range(len(self.Einit)):
+                    newEtatInitial += self.Einit[i]
+                    if i < len(self.Einit) - 1:
+                        newEtatInitial += ","
+                self.etat.append(newEtatInitial)
+                #self.Einit = [newEtatInitial]
+                #for transitionD in self.transition:
+                 #   if (transitionD[0] in newEtatInitial) and (transitionD[2] in newEtatInitial):
+                  #   transitionD[0] = newEtatInitial
+
+                for transitionD in self.transition:
+                    if transitionD[0] in self.Einit[0]:
+                        transitionD[0] = newEtatInitial
+                self.Einit = [newEtatInitial]
+
+            # gerer les transition et nouvelles transitions
+            if len(casAtraiter) > 0:
+                for teta in casAtraiter:
+                    if teta not in casTraiter:
+                        for delta in casAtraiter:
+                            if delta is not teta:
+                                if teta[:2] == delta[:2]:
+                                    newEtat = "{},{}".format(teta[2], delta[2])
+                                    print("------ new etat  -------")
+                                    print(newEtat)
+                                    print("----------")
+                                    newtransition = [teta[0], teta[1], newEtat]
+                                    for i in range(len(self.transition)):
+                                        print("------ statut des transitions -------")
+                                        print(self.transition)
+                                        print("----------")
+                                        if self.transition[i][:2] == newtransition[:2]:
+                                            self.transition[i] = newtransition
+                                            for transitionD in self.transition:
+                                                if transitionD[0] in newEtat:
+                                                    transitionD[0] = newEtat
+                                    casTraiter.append(teta)
+                                    casTraiter.append(delta)
+                                    self.etat.append(newEtat)
+                                    supprimerDoublons(self.transition)
+
+            if deterministe is True:
+                return
+            elif deterministe is False:
+                self.determiniser_automate()
+
+    #todo fonction d' accessibilité et de co accessibilité
