@@ -14,6 +14,34 @@ from graphviz import Digraph
 import re
 
 
+def compte_elements(nom_fichier):
+    fichier = open(nom_fichier, "r")
+    liste = fichier.readlines()
+    infos = []
+    for i in range(len(liste)):
+        liste[i] = re.sub('[\n]', '', liste[i])
+    # nombre d'etats
+    lesEtats = liste[0].split(";")
+    infos.append(int(len(lesEtats)))
+    # nombre de symboles
+    language = liste[1].split(";")
+    infos.append(int(len(language)))
+    # nombre d'etat initial
+    if len(liste[2]) > 1:
+        EtatInitial = liste[2].split(";")
+        infos.append(int(len(EtatInitial)))
+    else:
+        infos.append(int(len([liste[2]])))
+    # nombre d'etat finaux
+    if len(liste[3]) > 1:
+        EtatFinal = liste[3].split(";")
+        infos.append(int(len(EtatFinal)))
+    else:
+        infos.append(int(len([liste[3]])))
+    fichier.close()
+    return infos
+
+
 def ecriture(fichier, instance):
     for i in range(len(instance)):
         fichier.write(instance[i])
@@ -36,6 +64,8 @@ def supprimerDoublons(liste):
 
 class Automate:
     """
+    la class Automate permet de représenter un automate et grace aux methodes de la class
+    lu appliquer les opérations aplicable aux automates
     @:parameter nbEtat : difinit le nombre d'état de notre ensemble
     @:parameter tAlphabet: definit la longuer de notre alphabet
     @:parameter nbEinit: nombre d'états initiaux
@@ -111,22 +141,6 @@ class Automate:
             continuer = str(input("souhaitez ajouter une autre transition 'o' (oui) ou 'n' (non): "))
             if continuer == "n":
                 ajoutTransition = False
-            
-        """ 
-        for etat in self.etat:
-            for lettre in self.alphabet:
-                teta = (etat, lettre)
-                print(teta)
-                conditionT = False
-                while conditionT is not True:
-                    etatTransi = str(input("veuillez saisir q' si il existe, si non pressé entré : "))
-                    if (etatTransi in self.etat) or (etatTransi == ""):
-                        self.transition.update({teta: etatTransi})
-                        conditionT = True
-                    else:
-                        print("erreur! Votre saisie n'appartient a l'alphabet ou n'est pas null :")
-                        print(self.alphabet)
-        """
 
     def automate_to_file(self, nom_fichier):
         fichier = open(nom_fichier, 'w')
@@ -206,6 +220,7 @@ class Automate:
             if transitionQ[2] == etat:
                 if etat not in predecessor:
                     predecessor.append(transitionQ[0])
+        return predecessor
 
     def is_complete(self):
         for etat in self.etat:
@@ -220,6 +235,7 @@ class Automate:
 
     def completer_automate(self):
         if self.is_complete() is True:
+            print("cet automate est deja complet")
             return
         # on rejoute l'état poubelle a l'ensemble des etats
         EtatPoubel = "Qp"
@@ -227,8 +243,51 @@ class Automate:
         EtatxSymbol = [element[:2] for element in self.transition]
         for etat in self.etat:
             for symbol in self.alphabet:
-                if [etat,symbol] not in EtatxSymbol:
+                if [etat, symbol] not in EtatxSymbol:
                     self.transition.append([etat, symbol, EtatPoubel])
+
+    def etats_accessibles(self):
+        visited = []
+        to_vosit = [element for element in self.Einit]
+
+        while len(to_vosit) > 0:
+            etat = to_vosit.pop(0)
+            visited.append(etat)
+            for nexts in self.successeur(etat):
+                if (nexts not in visited) and (nexts not in to_vosit):
+                    to_vosit.append(nexts)
+        return visited
+
+    def est_accessible(self, etat):
+        if etat not in self.etat:
+            print("ce etat ne fais pas parti de l'ensemble Q ")
+            return False
+        return etat in self.etats_accessibles()
+
+    def automate_accessible(self):
+        return len(self.etat) == len(self.etats_accessibles())
+
+    def etats_coaccessibles(self):
+        visited = []
+        to_vosit = [element for element in self.Efini]
+
+        while len(to_vosit) > 0:
+            etat = to_vosit.pop(0)
+            visited.append(etat)
+            for previous in self.predecesseur(etat):
+                if (previous not in visited) and (previous not in to_vosit):
+                    to_vosit.append(previous)
+
+        return visited
+
+    def est_coaccessible(self, etat):
+        if etat not in self.etat:
+            print("ce etat ne fais pas parti de l'ensemble Q ")
+            return False
+        return etat in self.etats_coaccessibles()
+
+    def automate_coaccessible(self):
+        return len(self.etat) == len(self.etats_coaccessibles())
 
     def determiniser_automate(self):
         deterministe = True
@@ -238,9 +297,6 @@ class Automate:
 
         for transitionP in copyTransison:
             copy = copyTransison
-            print("------ statut des transitions lors de la copy -------")
-            print(self.transition)
-            print("----------")
             copy.remove(transitionP)
             for transition in copy:
                 if transitionP[:2] == transition[:2]:
@@ -278,14 +334,8 @@ class Automate:
                             if delta is not teta:
                                 if teta[:2] == delta[:2]:
                                     newEtat = "{},{}".format(teta[2], delta[2])
-                                    print("------ new etat  -------")
-                                    print(newEtat)
-                                    print("----------")
                                     newtransition = [teta[0], teta[1], newEtat]
                                     for i in range(len(self.transition)):
-                                        print("------ statut des transitions -------")
-                                        print(self.transition)
-                                        print("----------")
                                         if self.transition[i][:2] == newtransition[:2]:
                                             self.transition[i] = newtransition
                                             for transitionD in self.transition:
@@ -297,13 +347,10 @@ class Automate:
                                     supprimerDoublons(self.transition)
 
             if deterministe is True:
+                print("l'automate est determiniser")
                 return
             elif deterministe is False:
                 self.determiniser_automate()
 
-    # todo fonction d' accessibilité et de co accessibilité
-    def accessibilite(self):
-        pass
 
-    def coaccessibilite(self):
-        pass
+
