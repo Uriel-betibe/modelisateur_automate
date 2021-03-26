@@ -8,8 +8,9 @@ def main():
     print("veuiller choisir votre mode d'entré des données")
     print("saisie utilisateur (s) lecture a partir d'un fichier .txt (l)")
 
-    #todo developper une fonction qui renvoi les nombres d'éléments dans un fichier
+    # todo developper une fonction qui renvoi les nombres d'éléments dans un fichier
     conditionChoix = False
+    choix = ""
     while conditionChoix is not True:
         choix = str(input("saisir (s) ou lire (l) : "))
         if (choix == 's') or (choix == 'l'):
@@ -55,6 +56,7 @@ def main():
         print("\n")
         print(newAutomate.transition)
         print("\n")
+        # todo option de choix a l'utilisateur de voir si l'automate est determiniser
         newAutomate.determiniser_automate()
         print("\n-------------------------\n")
         print(newAutomate.etat)
@@ -62,10 +64,9 @@ def main():
         print(newAutomate.Einit)
         print(newAutomate.Efini)
         print("\n")
-       # newAutomate.supprimerDoublons()
+        # newAutomate.supprimerDoublons()
         print(newAutomate.transition)
         print("\n")
-
 
     # creation de fichier
     conditionChoix2 = False

@@ -27,6 +27,7 @@ def ecriture_transition(fichier, instance):
         x = transition[0] + ";" + transition[1] + ";" + transition[2]
         fichier.write(x+"\n")
 
+
 def supprimerDoublons(liste):
     for element in liste:
         if liste.count(element) >= 2:
@@ -103,7 +104,7 @@ class Automate:
                 alphaTransition = str(input("saisissez le symbole de cette transition: "))
                 etatArrive = str(input("saisissez l'état d'arrivé de cette transision: "))
                 if (etatDepart in self.etat) and (alphaTransition in self.alphabet) and (etatArrive in self.etat):
-                    self.transition.append([etatDepart,alphaTransition,etatArrive])
+                    self.transition.append([etatDepart, alphaTransition, etatArrive])
                     ajoutOK = True
                 else:
                     print("mauvaise saisie assurez vous de respecté l'ensemble des etats et l'alphabet")
@@ -130,23 +131,23 @@ class Automate:
     def automate_to_file(self, nom_fichier):
         fichier = open(nom_fichier, 'w')
         # ecriture des etats :
-        ecriture(fichier,self.etat)
+        ecriture(fichier, self.etat)
         # ecriture de l'alphabet
-        ecriture(fichier,self.alphabet)
+        ecriture(fichier, self.alphabet)
         # ecriture etat initial/aux
-        ecriture(fichier,self.Einit)
+        ecriture(fichier, self.Einit)
         # ecriture etat final
-        ecriture(fichier,self.Efini)
+        ecriture(fichier, self.Efini)
         # ecriture transition teta
-        ecriture_transition(fichier,self.transition)
+        ecriture_transition(fichier, self.transition)
         fichier.close()
 
-    def file_to_automate(self,nom_fichier):
+    def file_to_automate(self, nom_fichier):
         fichier = open(nom_fichier, 'r')
         liste = fichier.readlines()
         for i in range(len(liste)):
             liste[i] = re.sub('[\n]', '', liste[i])
-        #enregistrement des etats
+        # enregistrement des etats
         lesEtats = liste[0].split(";")
         self.etat = lesEtats
         # enregistrement de l'alphabet
@@ -185,6 +186,49 @@ class Automate:
             D.edge(transiton[0], transiton[2], transiton[1])
         D.view()
 
+    def successeur(self, etat):
+        if etat not in self.etat:
+            print("cet etat :"+etat+" ne fait pas parti de l'ensemble Q de cet automate")
+            return
+        succesor = []
+        for transitionQ in self.transition:
+            if transitionQ[0] == etat:
+                if etat not in succesor:
+                    succesor.append(transitionQ[2])
+        return succesor
+
+    def predecesseur(self, etat):
+        if etat not in self.etat:
+            print("cet etat :" + etat + " ne fait pas parti de l'ensemble Q de cet automate")
+            return
+        predecessor = []
+        for transitionQ in self.transition:
+            if transitionQ[2] == etat:
+                if etat not in predecessor:
+                    predecessor.append(transitionQ[0])
+
+    def is_complete(self):
+        for etat in self.etat:
+            i = 0
+            for symbol in self.alphabet:
+                for transitionA in self.transition:
+                    if transitionA[:2] == [etat, symbol]:
+                        i += 1
+            if i < len(self.alphabet):
+                return False
+        return True
+
+    def completer_automate(self):
+        if self.is_complete() is True:
+            return
+        # on rejoute l'état poubelle a l'ensemble des etats
+        EtatPoubel = "Qp"
+        self.etat.append(EtatPoubel)
+        EtatxSymbol = [element[:2] for element in self.transition]
+        for etat in self.etat:
+            for symbol in self.alphabet:
+                if [etat,symbol] not in EtatxSymbol:
+                    self.transition.append([etat, symbol, EtatPoubel])
 
     def determiniser_automate(self):
         deterministe = True
@@ -216,10 +260,10 @@ class Automate:
                     if i < len(self.Einit) - 1:
                         newEtatInitial += ","
                 self.etat.append(newEtatInitial)
-                #self.Einit = [newEtatInitial]
-                #for transitionD in self.transition:
-                 #   if (transitionD[0] in newEtatInitial) and (transitionD[2] in newEtatInitial):
-                  #   transitionD[0] = newEtatInitial
+                # self.Einit = [newEtatInitial]
+                # for transitionD in self.transition:
+                # if (transitionD[0] in newEtatInitial) and (transitionD[2] in newEtatInitial):
+                #   transitionD[0] = newEtatInitial
 
                 for transitionD in self.transition:
                     if transitionD[0] in self.Einit[0]:
@@ -257,4 +301,9 @@ class Automate:
             elif deterministe is False:
                 self.determiniser_automate()
 
-    #todo fonction d' accessibilité et de co accessibilité
+    # todo fonction d' accessibilité et de co accessibilité
+    def accessibilite(self):
+        pass
+
+    def coaccessibilite(self):
+        pass
