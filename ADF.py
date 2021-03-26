@@ -8,7 +8,6 @@ Le programme est capable :
     - d'afficher / lister les états accessibles et co-accessibles
     - de compléter l'automate
     - de déterminiser l'automate en détaillant les étapes
-
 """
 from graphviz import Digraph
 import re
@@ -194,7 +193,7 @@ class Automate:
                 D.node(transiton[0], label=transiton[0], shape="doublecircle")
             else:
                 D.node(transiton[0], label=transiton[0])
-            if transiton[2] in self.Einit:
+            if transiton[2] in self.Efini:
                 D.node(transiton[2], label=transiton[2], shape="doublecircle")
 
             D.edge(transiton[0], transiton[2], transiton[1])
